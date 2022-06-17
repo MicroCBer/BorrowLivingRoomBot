@@ -247,7 +247,8 @@ async function main() {
             case "bl:allowUse": {
                 let target = message.at;
                 if (!target) return;
-                if (!db.data.login_data[message.sender]) await bot.sendGroupMessage([Plain("设置失败：你还没有登录（通过!bl:login登录）")], message.group);
+                if (!db.data.login_data[message.sender]){ await bot.sendGroupMessage([Plain("设置失败：你还没有登录（通过!bl:login登录）")], message.group);return;
+                }
                 db.data.login_data[message.sender].allowUses.push(target)
                 await db.write();
                 await bot.sendGroupMessage([Plain("添加成功！:P\n现在您的允许使用名单为：" + db.data.login_data[message.sender].allowUses.join(","))], message.group);
@@ -256,7 +257,8 @@ async function main() {
             case "bl:removeUse": {
                 let target = message.at;
                 if (!target) return;
-                if (!db.data.login_data[message.sender]) await bot.sendGroupMessage([Plain("设置失败：你还没有登录（通过!bl:login登录）")], message.group);
+                if (!db.data.login_data[message.sender]) {await bot.sendGroupMessage([Plain("设置失败：你还没有登录（通过!bl:login登录）")], message.group);return;
+                }
                 db.data.login_data[message.sender].allowUses = db.data.login_data[message.sender].allowUses.filter(v => v != target)
                 await db.write();
                 await bot.sendGroupMessage([Plain("删除成功！:P\n现在您的允许使用名单为：" + db.data.login_data[message.sender].allowUses.join(","))], message.group);
@@ -265,8 +267,10 @@ async function main() {
             case "bl:use": {
                 let target = message.at;
                 if (!target) return;
-                if (!db.data.login_data[target]) await bot.sendGroupMessage([Plain("设置失败：对方还没有登录")], message.group);
-                if (!db.data.login_data[target].allowUses.includes(message.sender)) await bot.sendGroupMessage([Plain("设置失败：对方没有允许你使用（通过 !bl:allowUse @你 来允许你使用）")], message.group);
+                if (!db.data.login_data[target]) {await bot.sendGroupMessage([Plain("设置失败：对方还没有登录")], message.group);return;
+                }
+                if (!db.data.login_data[target].allowUses.includes(message.sender)) {await bot.sendGroupMessage([Plain("设置失败：对方没有允许你使用（通过 !bl:allowUse @你 来允许你使用）")], message.group);return;
+                }
                 db.data.using_livingroom[message.sender] = target;
                 await db.write();
                 await bot.sendGroupMessage([Plain("设置成功！:P")], message.group);
@@ -335,8 +339,8 @@ async function main() {
                     body: form
                 })).text();
                 log(resp,form);
-                await bot.sendTempMessage([Plain(`[BorrowLivingRoomBot] 直播已开始\n借用者(操作者)：${message.sender}\nRTMP推流地址：rtmp://${resp.data.protocols[0].addr}\nRTMP推流密钥：${resp.data.protocols[0].code}`)],roomqq,message.group);
-                await bot.sendTempMessage([Plain(`[BorrowLivingRoomBot] 直播已开始\nRTMP推流地址：rtmp://${resp.data.protocols[0].addr}\nRTMP推流密钥：${resp.data.protocols[0].code}`)],message.sender,message.group);
+                await bot.sendTempMessage([Plain(`[BorrowLivingRoomBot] 直播已开始\n借用者(操作者)：${message.sender}\nRTMP推流地址：${resp.data.rtmp.addr}\nRTMP推流密钥：${resp.data.rtmp.code}`)],roomqq,message.group);
+                await bot.sendTempMessage([Plain(`[BorrowLivingRoomBot] 直播已开始\nRTMP推流地址：${resp.data.rtmp.addr}\nRTMP推流密钥：${resp.data.rtmp.code}`)],message.sender,message.group);
                 await bot.sendGroupMessage([Plain("请求成功！rtmp地址&密钥已私聊发送。")], message.group);
                 break;
             }
