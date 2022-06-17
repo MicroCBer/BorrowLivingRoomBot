@@ -208,8 +208,9 @@ async function main() {
                 let target = message.at;
                 if (!target)
                     return;
-                if (!db.data.login_data[message.sender])
-                    await bot.sendGroupMessage([Plain("设置失败：你还没有登录（通过!bl:login登录）")], message.group);
+                if (!db.data.login_data[message.sender]){
+                    await bot.sendGroupMessage([Plain("设置失败：你还没有登录（通过!bl:login登录）")], message.group);return;
+                }
                 db.data.login_data[message.sender].allowUses.push(target);
                 await db.write();
                 await bot.sendGroupMessage([Plain("添加成功！:P\n现在您的允许使用名单为：" + db.data.login_data[message.sender].allowUses.join(","))], message.group);
@@ -219,8 +220,9 @@ async function main() {
                 let target = message.at;
                 if (!target)
                     return;
-                if (!db.data.login_data[message.sender])
-                    await bot.sendGroupMessage([Plain("设置失败：你还没有登录（通过!bl:login登录）")], message.group);
+                if (!db.data.login_data[message.sender]){
+                    await bot.sendGroupMessage([Plain("设置失败：你还没有登录（通过!bl:login登录）")], message.group);return;
+                }
                 db.data.login_data[message.sender].allowUses = db.data.login_data[message.sender].allowUses.filter(v => v != target);
                 await db.write();
                 await bot.sendGroupMessage([Plain("删除成功！:P\n现在您的允许使用名单为：" + db.data.login_data[message.sender].allowUses.join(","))], message.group);
