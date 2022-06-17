@@ -95,8 +95,8 @@ async function main() {
     };
     log("Attempting to connect to Mirai...");
     const bot = new Mirai({
-        host: 'http://localhost:8080',
-        verifyKey: '你的vkey',
+        host: 'http://114.132.42.92:8080',
+        verifyKey: '3253619589212147686756346234',
         qq: 2944969546,
         enableWebsocket: true,
         wsOnly: false,
@@ -230,10 +230,14 @@ async function main() {
                 let target = message.at;
                 if (!target)
                     return;
-                if (!db.data.login_data[target])
+                if (!db.data.login_data[target]){
                     await bot.sendGroupMessage([Plain("设置失败：对方还没有登录")], message.group);
-                if (!db.data.login_data[target].allowUses.includes(message.sender))
+                    return;
+                }
+                if (!db.data.login_data[target].allowUses.includes(message.sender)){
                     await bot.sendGroupMessage([Plain("设置失败：对方没有允许你使用（通过 !bl:allowUse @你 来允许你使用）")], message.group);
+                    return;
+                }
                 db.data.using_livingroom[message.sender] = target;
                 await db.write();
                 await bot.sendGroupMessage([Plain("设置成功！:P")], message.group);
@@ -301,10 +305,10 @@ async function main() {
                         "Cookie": parsed.all
                     },
                     body: form
-                })).text();
+                })).json();
                 log(resp, form);
-                await bot.sendTempMessage([Plain(`[BorrowLivingRoomBot] 直播已开始\n借用者(操作者)：${message.sender}\nRTMP推流地址：rtmp://${resp.data.protocols[0].addr}\nRTMP推流密钥：${resp.data.protocols[0].code}`)], roomqq, message.group);
-                await bot.sendTempMessage([Plain(`[BorrowLivingRoomBot] 直播已开始\nRTMP推流地址：rtmp://${resp.data.protocols[0].addr}\nRTMP推流密钥：${resp.data.protocols[0].code}`)], message.sender, message.group);
+                await bot.sendTempMessage([Plain(`[BorrowLivingRoomBot] 直播已开始\n借用者(操作者)：${message.sender}\nRTMP推流地址：${resp.data.rtmp.addr}\nRTMP推流密钥：${resp.data.rtmp.code}`)], roomqq, message.group);
+                await bot.sendTempMessage([Plain(`[BorrowLivingRoomBot] 直播已开始\nRTMP推流地址：${resp.data.rtmp.addr}\nRTMP推流密钥：${resp.data.rtmp.code}`)], message.sender, message.group);
                 await bot.sendGroupMessage([Plain("请求成功！rtmp地址&密钥已私聊发送。")], message.group);
                 break;
             }
